@@ -1,0 +1,170 @@
+
+# ============================================================
+# Healthcare Lakehouse - Development Configuration
+# Environment: DEV
+# ============================================================
+
+environment: dev
+
+# ------------------------------------------------------------
+# 1. Unity Catalog Configuration
+# ------------------------------------------------------------
+
+catalog: healthcare
+
+schemas:
+  raw: raw
+  bronze: bronze
+  silver: silver
+  gold: gold
+  metadata: metadata
+  sandbox: sandbox
+
+
+# ------------------------------------------------------------
+# 2. Unity Catalog Volume Configuration
+# ------------------------------------------------------------
+
+volumes:
+
+  raw_volume: healthcare_files
+
+  operational_volume: operational_files
+
+paths:
+
+  # Raw healthcare source files
+  raw_base: /Volumes/healthcare_catalog/raw/healthcare_files
+
+  # Raw ingestion folders
+  raw_landing: /Volumes/healthcare_catalog/raw/healthcare_files/landing
+
+  raw_archive: /Volumes/healthcare_catalog/raw/healthcare_files/archive
+
+  raw_quarantine: /Volumes/healthcare_catalog/raw/healthcare_files/quarantine
+
+  # Operational files
+  checkpoint_base: /Volumes/healthcare_catalog/metadata/operational_files/checkpoints
+
+  log_base: /Volumes/healthcare_catalog/metadata/operational_files/logs
+
+
+# ------------------------------------------------------------
+# 3. Medallion Layer Configuration
+# ------------------------------------------------------------
+
+medallion:
+
+  raw:
+    schema: raw
+
+  bronze:
+    schema: bronze
+    format: delta
+    table_prefix: brz_
+
+  silver:
+    schema: silver
+    format: delta
+    table_prefix: slv_
+
+  gold:
+    schema: gold
+    format: delta
+
+
+# ------------------------------------------------------------
+# 4. Ingestion Configuration
+# ------------------------------------------------------------
+
+ingestion:
+
+  # Supported ingestion mode for initial development
+  mode: full_refresh
+
+  # Source file format
+  file_format: csv
+
+  # CSV reader settings
+  csv:
+    header: true
+    infer_schema: false
+    delimiter: ","
+    encoding: UTF-8
+    quote: '"'
+    escape: '"'
+    multiline: false
+    mode: PERMISSIVE
+
+  # Metadata columns
+  metadata_columns:
+    source_file: _source_file
+    ingestion_timestamp: _ingestion_timestamp
+    batch_id: _batch_id
+    source_part: _source_part
+
+  # Write settings
+  write:
+    format: delta
+    mode: overwrite
+    overwrite_schema: true
+
+
+# ------------------------------------------------------------
+# 5. Data Quality Configuration
+# ------------------------------------------------------------
+
+data_quality:
+
+  enabled: true
+
+  checks:
+    schema_validation: true
+    null_validation: true
+    duplicate_validation: false
+    row_count_validation: true
+
+  quarantine_enabled: true
+
+
+# ------------------------------------------------------------
+# 6. Logging Configuration
+# ------------------------------------------------------------
+
+logging:
+
+  level: INFO
+
+  audit_enabled: true
+
+  log_to_table: true
+
+  audit_table: ingestion_audit
+
+
+# ------------------------------------------------------------
+# 7. Spark Configuration
+# ------------------------------------------------------------
+
+spark:
+
+  timezone: UTC
+
+  shuffle_partitions: 200
+
+  adaptive_execution: true
+
+
+# ------------------------------------------------------------
+# 8. Development Settings
+# ------------------------------------------------------------
+
+development:
+
+  debug: true
+
+  sample_mode: false
+
+  sample_limit: 1000
+
+  fail_on_error: true

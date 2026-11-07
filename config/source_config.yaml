@@ -1,0 +1,17 @@
+environment: dev
+
+catalog: healthcare_catalog
+
+schemas:
+  raw: raw
+  bronze: bronze
+  silver: silver
+  gold: gold
+  metadata: metadata
+
+volume:
+  raw: healthcare_files
+
+processing:
+  write_format: delta
+  checkpoint_base: /Volumes/healthcare_catalog/metadata/operational_files/checkpoints/
